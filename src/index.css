@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Selector ultra-específico para ocultar la barra en la clase */
+  .scrollbar-none {
+    -ms-overflow-style: none !important;  /* IE y Edge */
+    scrollbar-width: none !important;  /* Firefox */
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none !important; /* Chrome, Safari, Opera y navegadores basados en Chromium */
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
+}

@@ -1,0 +1,15 @@
+import { isAxiosError } from "axios";
+import api from "../config/axios";
+import type { User, } from "../../src/types/types.ts";
+
+export async function getUser() {
+  try {
+    const { data } = await api.get<{ user: User }>(`/user/profile`);
+
+    return data.user;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
