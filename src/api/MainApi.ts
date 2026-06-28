@@ -4,12 +4,13 @@ import type { User, } from "../../src/types/types.ts";
 
 export async function getUser() {
   try {
-    const { data } = await api.get<{ user: User }>(`/user/profile`);
+    const { data } = await api.get<{ user: User }>(`/api/v1/user`);
 
     return data.user;
+
   } catch (error) {
     if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.error);
+      throw new Error(error.response.data.message);
     }
   }
 }

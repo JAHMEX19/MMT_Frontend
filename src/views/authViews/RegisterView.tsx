@@ -35,11 +35,10 @@ export default function RegisterView() {
       reset();
     } catch (error) {
       if (isAxiosError(error) && error.response) {
-      
-      toast.error(error.response.data.message || "Error al registrar el usuario");
-    } else {
-      toast.error("Error de conexión con el servidor");
-    }
+        toast.error(error.response.data.message || "Error al registrar el usuario");
+      } else {
+        toast.error("Error de conexión con el servidor");
+      }
     }
   };
 
@@ -52,7 +51,7 @@ export default function RegisterView() {
             Crea tu cuenta
           </h2>
           <p className="text-sm text-slate-400">
-            Ingresa tus datos para unirte al panel de Magnus y comenzar.s
+            Ingresa tus datos para unirte al panel de Magnus y comenzar.
           </p>
         </div>
 
@@ -73,7 +72,7 @@ export default function RegisterView() {
               id="username"
               type="text"
               placeholder="Ej. John Doe"
-              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-200"
+              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
               {...register("username", { required: "El nombre de usuario es obligatorio" })}
             />
             {errors.username && <ErrorMessage>{errors.username.message} </ErrorMessage>}
@@ -91,7 +90,7 @@ export default function RegisterView() {
               id="email"
               type="email"
               placeholder="usuario@magnusmmt.com"
-              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-200"
+              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
               {...register("email", {
                 required: "El email es obligatorio",
                 pattern: {
@@ -117,7 +116,7 @@ export default function RegisterView() {
               id="handle"
               type="text"
               placeholder="Ej. JohnDoe"
-              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-200"
+              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
               {...register("handle", {
                 required: "El tag de usuario es obligatorio",
               })}
@@ -139,7 +138,7 @@ export default function RegisterView() {
               id="password"
               type="password"
               placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-200"
+              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
               {...register("password", {
                 required: "El password es obligatorio",
                 minLength: {
@@ -153,7 +152,7 @@ export default function RegisterView() {
             )}
           </div>
 
-          {/* Campo:Confirmar Contraseña */}
+          {/* Campo: Confirmar Contraseña */}
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="password_confirmation"
@@ -165,11 +164,10 @@ export default function RegisterView() {
               id="password_confirmation"
               type="password"
               placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all duration-200"
+              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
               {...register("password_confirmation", {
                 required: "Confirmar es obligatorio",
-                validate: (value) =>value === getValues("password") || "Las contraseñas no coinciden",
-                  
+                validate: (value) => value === getValues("password") || "Las contraseñas no coinciden",
               })}
             />
             {errors.password_confirmation && (
@@ -184,7 +182,7 @@ export default function RegisterView() {
             <input
               id="terms"
               type="checkbox"
-              className="w-4 h-4 rounded bg-slate-900 border-slate-800 text-cyan-500 focus:ring-cyan-500/30 focus:ring-offset-slate-950"
+              className="w-4 h-4 rounded bg-slate-900 border-slate-800 text-purple-500 focus:ring-purple-500/30 focus:ring-offset-slate-950"
             />
             <label
               htmlFor="terms"
@@ -194,10 +192,10 @@ export default function RegisterView() {
             </label>
           </div>
 
-          {/* Botón de Acción Principal */}
+          {/* Botón de Acción Principal Modificado a los tonos de Register */}
           <button
             type="submit"
-            className="w-full mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-cyan-500/10 active:scale-[0.98] transition-all duration-150"
+            className="w-full mt-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-purple-500/20 active:scale-[0.98] transition-all duration-150"
           >
             Registrarse en el Sistema
           </button>
@@ -209,7 +207,7 @@ export default function RegisterView() {
             ¿Ya tienes una cuenta?{" "}
             <Link
               to="/auth/login"
-              className="font-medium text-cyan-400 hover:text-cyan-300 transition-colors duration-150 underline underline-offset-4"
+              className="font-medium text-purple-400 hover:text-purple-300 transition-colors duration-150 underline underline-offset-4"
             >
               Inicia sesión aquí
             </Link>

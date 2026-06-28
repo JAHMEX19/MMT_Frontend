@@ -15,3 +15,7 @@ export type RegisterFormData = Pick<User, 'handle' | 'username' | 'email' > & {
     password:string,
     password_confirmation:string,
 }
+
+export type LoginFormData = Pick<User, 'email'> & {
+    password:string
+}
