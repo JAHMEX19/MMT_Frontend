@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { isAxiosError } from "axios";
-import ErrorMessage from "../../components/ErrorMessage";
+import ErrorMessage from "../../components/errorMessage/ErrorMessage.tsx";
 import type { LoginFormData } from "../../types/types";
 import { toast } from "sonner";
 import api from "../../config/axios.ts";
