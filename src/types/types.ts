@@ -19,3 +19,10 @@ export type RegisterFormData = Pick<User, 'handle' | 'username' | 'email' > & {
 export type LoginFormData = Pick<User, 'email'> & {
     password:string
 }
+
+export type CompanyFormData = {
+    companyname:string,
+    address?:string,
+    owner?:string,
+    canvas?:string
+}

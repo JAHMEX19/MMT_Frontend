@@ -5,6 +5,7 @@ import AuthLayout from './layouts/AuthLayout';
 import AppLayout from './layouts/AppLayout';
 import ProfileView from './views/appViews/ProfileView';
 import DashboardView from './views/appViews/DashboardView';
+import OperationalCanvas from './views/canvaView/OperationalCanva';
 
 
 
@@ -21,6 +22,7 @@ export default function Router() {
         <Route element={<AppLayout />} >
             <Route path="/admin/dashboard" element={<DashboardView />} />
             <Route path="/admin/profile" element={<ProfileView />} />
+            <Route path="/admin/canvas" element={<OperationalCanvas />} />
         </Route>
 
       </Routes>

@@ -1,12 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
-import { FiX, FiActivity, FiUser, FiLayers } from "react-icons/fi";
+import { FiX, FiActivity, FiUser, FiLayers, FiPlus } from "react-icons/fi";
 
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
+  onOpenCreateCompany: () => void; // NUEVA PROP: Para detonar el formulario/modal
 }
 
-export default function Sidebar({ open, onClose }: SidebarProps) {
+export default function Sidebar({ open, onClose, onOpenCreateCompany }: SidebarProps) {
   const location = useLocation();
 
   // =========================================================================
@@ -70,7 +71,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </div>
         </div>
 
-        {/* Lista de enlaces */}
+        {/* Lista de enlaces principales */}
         <nav className="flex flex-col gap-2 flex-1">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -94,6 +95,41 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               </Link>
             );
           })}
+
+          {/* =========================================================================
+              SECCIÓN DE CREACIÓN DE COMPAÑÍA (BOTÓN INTEGRADO)
+             ========================================================================= */}
+          <div className="my-4 border-t border-slate-900 pt-4">
+            <p className="px-4 text-[10px] font-mono font-bold tracking-widest uppercase text-slate-500 mb-2">
+              Organizaciones
+            </p>
+            
+            <button
+              onClick={() => {
+                // Cerramos el menú en móvil si se ejecuta el trigger
+                if (window.innerWidth < 1200) onClose();
+                onOpenCreateCompany();
+              }}
+              className="
+                w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium 
+                text-slate-400 border border-dashed border-slate-800 hover:border-cyan-500/30 
+                hover:bg-slate-900 hover:text-slate-200 transition-all group
+              "
+              title="Nueva Compañía"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-lg text-slate-500 group-hover:text-cyan-400 transition-colors">
+                  <FiLayers />
+                </span>
+                <span className="text-left">Nueva Compañía</span>
+              </div>
+              
+              <span className="p-1 rounded-md bg-slate-950 text-slate-500 group-hover:text-cyan-400 group-hover:bg-cyan-950/40 border border-slate-900 transition-all">
+                <FiPlus size={14} />
+              </span>
+            </button>
+          </div>
+
         </nav>
       </div>
     </div>
