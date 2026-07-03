@@ -19,10 +19,10 @@ export default function Router() {
             <Route path="/auth/signup" element={<RegisterView />} />
         </Route>
 
-        <Route element={<AppLayout />} >
-            <Route path="/admin/dashboard" element={<DashboardView />} />
-            <Route path="/admin/profile" element={<ProfileView />} />
-            <Route path="/admin/canvas" element={<OperationalCanvas />} />
+        <Route path='/admin' element={<AppLayout />} >
+            <Route path="dashboard" element={<DashboardView />} />
+            <Route path="profile" element={<ProfileView />} />
+            <Route path="canvas" element={<OperationalCanvas />} />
         </Route>
 
       </Routes>
