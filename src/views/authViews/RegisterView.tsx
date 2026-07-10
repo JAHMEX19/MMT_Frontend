@@ -12,7 +12,6 @@ export default function RegisterView() {
   const initalValues = {
     username: "",
     email: "",
-    handle: "",
     password: "",
     password_confirmation: "",
   };
@@ -101,28 +100,6 @@ export default function RegisterView() {
             />
             {errors.email && (
               <ErrorMessage>{errors.email.message} </ErrorMessage>
-            )}
-          </div>
-
-          {/* Campo: Handle */}
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="handle"
-              className="text-xs font-semibold uppercase tracking-wider text-slate-300"
-            >
-              Handle
-            </label>
-            <input
-              id="handle"
-              type="text"
-              placeholder="Ej. JohnDoe"
-              className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-200"
-              {...register("handle", {
-                required: "El tag de usuario es obligatorio",
-              })}
-            />
-            {errors.handle && (
-              <ErrorMessage>{errors.handle.message} </ErrorMessage>
             )}
           </div>
 

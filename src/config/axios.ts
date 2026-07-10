@@ -4,7 +4,6 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
 });
 
-/*
 // Interceptor para agregar el token de autenticación a cada solicitud
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("AUTH_TOKEN");
@@ -14,7 +13,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// NUEVO: Interceptor para manejar errores globales (como el token expirado)
+// Interceptor para manejar errores globales (como el token expirado)
 api.interceptors.response.use(
   (response) => {
     // Si la respuesta es exitosa, la dejamos pasar sin cambios
@@ -26,15 +25,15 @@ api.interceptors.response.use(
       // 1. Borramos el token que ya no sirve
       localStorage.removeItem("AUTH_TOKEN");
 
-      // 2. Redirigimos al usuario al login
-      // window.location.href hace una recarga completa, lo que limpia 
+      // 2. Redirigimos al usuario al login de administrador correcto
+      // window.location.href hace una recarga completa, lo que limpia
       // cualquier rastro de la sesión anterior en la memoria de React.
-      window.location.href = "/user/login";
+      window.location.href = "/auth/login"; // <--- CORREGIDO AQUÍ
     }
 
     // Retornamos el error para que funciones como getUser() sigan pudiendo atraparlo si es necesario
     return Promise.reject(error);
-  }
-);*/
+  },
+);
 
 export default api;
