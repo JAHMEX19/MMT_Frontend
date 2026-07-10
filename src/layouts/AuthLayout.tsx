@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
 const FEATURES = [
@@ -60,7 +60,7 @@ export default function AuthLayout() {
   // =========================================================================
   const theme = {
     // Gradiente del logo
-    logoBg: isRegister ? 'from-purple-500 to-indigo-600 ring-purple-400/30' : 'from-cyan-500 to-blue-600 ring-cyan-400/30',
+    logoBg: isRegister ? 'from-purple-500 to-indigo-600 ring-purple-400/30' : 'bg-slate-900 border border-slate-800/80 ring-1 ring-slate-800',
     logoPing: isRegister ? 'bg-purple-400/20' : 'bg-cyan-400/20',
     logoText: isRegister ? 'to-purple-400' : 'to-cyan-400',
     logoSub: isRegister ? 'text-purple-400' : 'text-cyan-400',
@@ -102,7 +102,9 @@ export default function AuthLayout() {
           <div className="flex items-center gap-4 shrink-0">
             <div className={`relative flex items-center justify-center bg-gradient-to-br p-3 rounded-xl shadow-lg ring-1 transition-all duration-700 ${theme.logoBg}`}>
               <span className={`absolute inset-0 rounded-xl pointer-events-none animate-ping transition-all duration-700 ${theme.logoPing}`}></span>
-              <img src="/doble.svg" alt="Magnus Icon" className="w-9 h-9 invert relative z-10" />
+              <Link to="/" className="flex items-center gap-4 shrink-0 group">
+              <img src="/mmt-svg.svg" alt="Magnus MMT Logo" className="w-9 h-9 relative z-10 object-contain" />
+              </Link>
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-200 bg-clip-text  transition-all duration-700">
