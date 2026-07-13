@@ -8,6 +8,8 @@ import ProfileView from './views/appViews/ProfileView';
 import DashboardView from './views/appViews/DashboardView';
 import OperationalCanvas from './views/canvaView/OperationalCanva';
 import HomeView from './views/mainViews/HomeView';
+import ProjectsView from './views/mainViews/ProjectsView';
+import ContactView from './views/mainViews/ContactView';
 
 
 
@@ -29,6 +31,8 @@ export default function Router() {
 
         <Route path='/' element={<MainLayout />} >
             <Route path="/" element={<HomeView />} />
+            <Route path="/projects" element={<ProjectsView />} />
+            <Route path="/contact" element={<ContactView />} />
         </Route>
 
 

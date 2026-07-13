@@ -3,33 +3,32 @@ import {
   FiCpu, 
   FiLayers, 
   FiActivity, 
-  FiTrendingUp, 
-  FiShield, 
   FiDatabase, 
   FiChevronLeft,
-  FiChevronRight
+  FiChevronRight,
+  FiLink
 } from "react-icons/fi";
 import { useEffect, useState } from "react";
 
 // Data unificada basada en la presentación real de Magnus MMT
 const MECHATRONIC_PROJECTS = [
   {
-    title: "Celdas de Manufactura Flexibles",
-    category: "Ingeniería & Proyectos",
-    description: "Diseño y programación de lógica de control industrial y tableros a medida.",
+    title: "Proyectos Mecatrónicos",
+    category: "Ingeniería",
+    description: "Análisis, diseño e implementación de proyectos mecatrónicos, integración de sistemas y optimización de procesos.",
     tag: "Proyectos Mecatrónicos",
     img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=600"
   },
   {
-    title: "Nodos de Adquisición IoT Robustos",
-    category: "Ecosistema IoT",
+    title: "MMT Core",
+    category: "Hardware",
     description: "Hardware de bajo costo para captura y transmisión perimetral de señales en piso.",
     tag: "MMT Core",
     img: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=600"
   },
   {
-    title: "Líneas Automatizadas con Monitoreo",
-    category: "Plataforma MMT System",
+    title: "MMT System",
+    category: "Software",
     description: "Integración completa de hardware y software para cálculo de disponibilidad y rendimiento.",
     tag: "MMT System",
     img: "https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&q=80&w=600"
@@ -38,40 +37,55 @@ const MECHATRONIC_PROJECTS = [
 
 export default function HomeView() {
 
-  // Fases del Camino MMT (Página 3 de tu documento)
+  // Fases corregidas en orden lógico de automatización industrial
   const fasesCamino = [
     {
-      fase: "FASE 01",
-      title: "Ingeniería & Proyectos",
-      description: "Diseño de sistemas mecatrónicos, tableros de control e ingeniería operativa a la medida.",
+      fase: "Ingeniería",
+      title: "Proyectos de ingeniería",
+      description: "Diseño de sistemas mecatrónicos, integración de automatización, agentes digitales y dispositivos de recolección de datos. All in One Solutions.",
       icon: FiCpu
     },
     {
-      fase: "FASE 02",
+      fase: "Hardware",
+      title: "MMT Core",
+      description: "Dispositivos de adquisición de datos robustos y económicos que conectan tu operación a la plataforma MMT System.",
+      icon: FiDatabase
+    },
+    {
+      fase: "Software",
       title: "MMT System",
       description: "Centralización de datos operacionales, métricas en tiempo real e indicadores clave (OEE) accesibles desde cualquier lugar.",
       icon: FiActivity
+    }
+  ];
+
+  // Ecosistema Magnus MT completo con sus 5 pilares técnicos
+  const capacidades = [
+    {
+      title: "Optimización Lean y Monitoreo de OEE",
+      desc: "Capturamos datos directo desde el piso de producción en tiempo real. Eliminamos los registros manuales para identificar cuellos de botella y calcular la eficiencia real de tu proceso.",
+      icon: FiCpu
     },
     {
-      fase: "FASE 03",
-      title: "MMT Core",
-      description: "Dispositivos de adquisición de datos robustos y económicos que conectan de forma directa tus máquinas.",
+      title: "Convergencia IT / OT",
+      desc: "Conectamos el mundo físico con el digital. Creamos un puente seguro entre tus equipos de planta (sensores y PLCs) y nuestra plataforma en la nube para centralizar tu operación.",
+      icon: FiLink
+    },
+    {
+      title: "Conectividad Industrial Modular",
+      desc: "Diseño flexible y compatible. Soportamos los protocolos estándar de la industria, garantizando que el sistema se adapte a tu infraestructura actual sin importar la marca.",
+      icon: FiLayers
+    },
+
+    {
+      title: "Trazabilidad y Respaldo de Datos",
+      desc: "Almacenamos tu telemetría e historiales de forma masiva, segura e inmutable. La información crítica de tu planta siempre estará lista y disponible para auditorías de calidad.",
       icon: FiDatabase
     }
   ];
 
-  // Pilares tecnológicos (Páginas 4 y 5 de tu documento)
-  const capacidades = [
-    { title: "Automatización de Procesos", desc: "Diseño, programación y despliegue de lógica de control industrial a medida para potenciar la consistencia operativa.", icon: FiCpu },
-    { title: "Gestión & Consultoría", desc: "Mapeo de cuellos de botella, optimización de inventarios y reestructuración estratégica de flujos de trabajo en planta.", icon: FiTrendingUp },
-    { title: "Big Data & IA", desc: "Procesamiento avanzado mediante agentes digitales y analíticas predictivas orientadas al piso de producción.", icon: FiLayers },
-    { title: "Ciberseguridad Industrial", desc: "Protección integral del ecosistema perimetral, la infraestructura Cloud y las redes de adquisición de datos.", icon: FiShield }
-  ];
-
-  // Estado para controlar el carrusel de proyectos
   const [currentProject, setCurrentProject] = useState(0);
 
-  // Efecto para la rotación automática del carrusel cada 4 segundos
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentProject((prev) => (prev + 1) % MECHATRONIC_PROJECTS.length);
@@ -90,23 +104,19 @@ export default function HomeView() {
   return (
     <div className="space-y-20 animate-in fade-in duration-500 pb-12">
       
-      {/* =========================================================================
-          1. HERO SECTION (Fusión reparada y unificada con el Carrusel)
-          ========================================================================= */}
+      {/* 1. HERO SECTION */}
       <section className="relative rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 p-8 sm:p-12 md:p-16 text-center lg:text-left shadow-2xl">
-        {/* Fondo decorativo con mallas y sombras de tu logo */}
         <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px]"></div>
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-emerald-500/5 blur-[120px]"></div>
         <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-cyan-500/5 blur-[120px]"></div>
 
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
           
-          {/* Lado Izquierdo: Textos Principales y Botones */}
           <div className="max-w-xl space-y-6 flex-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mx-auto lg:mx-0">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-emerald-400">
-                Core_Interface v1.0.0
+                {new Date().toLocaleDateString("es-ES", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
               </span>
             </div>
             
@@ -137,13 +147,12 @@ export default function HomeView() {
             </div>
           </div>
 
-          {/* Lado Derecho: Carrusel de Proyectos Mecatrónicos de Magnus */}
+          {/* Lado Derecho: Carrusel */}
           <div className="w-full lg:w-[380px] shrink-0 relative group/carousel mx-auto lg:mx-0">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 rounded-2xl blur-xl opacity-70 group-hover/carousel:opacity-100 transition-opacity" />
 
             <div className="relative rounded-2xl border border-slate-800/80 bg-slate-950 overflow-hidden shadow-2xl flex flex-col h-[340px]">
               
-              {/* Bloque superior de la Imagen con controles */}
               <div className="relative w-full h-44 overflow-hidden bg-slate-900 border-b border-slate-900">
                 <img 
                   src={MECHATRONIC_PROJECTS[currentProject].img} 
@@ -173,7 +182,6 @@ export default function HomeView() {
                 </div>
               </div>
 
-              {/* Bloque de Información Técnica */}
               <div className="p-5 flex-1 flex flex-col justify-between text-left">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-cyan-400">
@@ -187,7 +195,6 @@ export default function HomeView() {
                   </p>
                 </div>
 
-                {/* Dots del carrusel */}
                 <div className="flex gap-1.5 justify-center pt-2">
                   {MECHATRONIC_PROJECTS.map((_, idx) => (
                     <span 
@@ -206,28 +213,24 @@ export default function HomeView() {
         </div>
       </section>
 
-      {/* =========================================================================
-          2. NUESTRA FILOSOFÍA DE TRABAJO (Página 2 del PDF)
-          ========================================================================= */}
+      {/* 2. NUESTRA FILOSOFÍA DE TRABAJO */}
       <section className="max-w-4xl mx-auto text-center space-y-4">
         <h2 className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-[0.3em]">
           Nuestra Filosofía
         </h2>
-        <p className="text-xl sm:text-1xl font-bold tracking-tight text-white leading-relaxed">
+        <p className="text-xl font-bold tracking-tight text-white leading-relaxed">
           &ldquo;Creatividad para crear valor, disciplina para enfrentar los retos y humildad para servir.&rdquo; 
         </p>
       </section>
 
-      {/* =========================================================================
-          3. EL CAMINO MMT - LAS 3 FASES (Página 3 del PDF)
-          ========================================================================= */}
+      {/* 3. EL CAMINO MMT - LAS 3 FASES */}
       <section className="space-y-8">
         <div className="flex flex-col gap-1 border-b border-slate-900 pb-4">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <FiLayers className="text-emerald-400" /> Evolución: El Camino MMT
+            <FiLayers className="text-emerald-400" /> Servicios
           </h2>
           <p className="text-xs font-mono text-slate-500 uppercase tracking-widest">
-            Fases estructuradas de optimización y madurez tecnológica.
+            Fases de integración tecnológica para transformar tu planta en un ecosistema inteligente.
           </p>
         </div>
 
@@ -262,20 +265,19 @@ export default function HomeView() {
         </div>
       </section>
 
-      {/* =========================================================================
-          4. CAPACIDADES Y SOLUCIONES TÉCNICAS (Páginas 4 y 5 del PDF)
-          ========================================================================= */}
+      {/* 4. CAPACIDADES Y SOLUCIONES TÉCNICAS */}
       <section className="space-y-8">
         <div className="flex flex-col gap-1 border-b border-slate-900 pb-4">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <FiCpu className="text-cyan-400" /> Ecosistema de Ingeniería Integrada
+            <FiCpu className="text-cyan-400" /> Ecosistema
           </h2>
           <p className="text-xs font-mono text-slate-500 uppercase tracking-widest">
-            Sistemas mecatrónicos orientados a potenciar tus líneas de producción.
+            Ingeniería Basada en Estándares y Metodologías Globales.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Ajustado a grid de 3 columnas en pantallas grandes para balancear los 5 elementos */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           {capacidades.map((cap, index) => {
             const Icon = cap.icon;
             return (
@@ -288,7 +290,7 @@ export default function HomeView() {
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-sm font-bold text-white">{cap.title}</h4>
-                  <p className="text-xs text-slate-400 leading-relaxed max-w-md">{cap.desc}</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">{cap.desc}</p>
                 </div>
               </div>
             );
