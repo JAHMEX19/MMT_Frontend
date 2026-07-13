@@ -1,15 +1,16 @@
 import { isAxiosError } from "axios";
 import api from "../config/axios";
-import type { User } from "../../src/types/types.ts";
+import type { IUserResponse } from "../types/types.ts";
 
-export async function getUser() {
-  
+export async function getUser(): Promise<IUserResponse> {
   try {
-    const { data } = await api.get<{ user: User }>(`/api/v1/user/profile`)
+    // Al pasar <IUserResponse>, le decimos a Axios que 'data' cumple exactamente con esa interfaz
+    const { data } = await api.get<IUserResponse>(`/api/v1/user/profile`);
     return data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.error, { cause: error });
+      throw new Error(error.response.data.error || "Error al obtener perfil", { cause: error });
     }
+    throw error;
   }
 }

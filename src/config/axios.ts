@@ -8,30 +8,29 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("AUTH_TOKEN");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    // Uso de .set() para asegurar compatibilidad en Axios 1.x+
+    config.headers.set("Authorization", `Bearer ${token}`);
   }
   return config;
 });
 
-// Interceptor para manejar errores globales (como el token expirado)
+// Interceptor para manejar errores globales
 api.interceptors.response.use(
-  (response) => {
-    // Si la respuesta es exitosa, la dejamos pasar sin cambios
-    return response;
-  },
+  (response) => response,
   (error) => {
-    // Si el backend responde con 401 (Unauthorized)
+    // Verificamos si el error es 401
     if (error.response && error.response.status === 401) {
-      // 1. Borramos el token que ya no sirve
-      localStorage.removeItem("AUTH_TOKEN");
+      
+      // Evitamos actuar si el error viene precisamente de la petición de login
+      const isLoginRequest = error.config.url.includes("/login"); 
 
-      // 2. Redirigimos al usuario al login de administrador correcto
-      // window.location.href hace una recarga completa, lo que limpia
-      // cualquier rastro de la sesión anterior en la memoria de React.
-      window.location.href = "/auth/login"; // <--- CORREGIDO AQUÍ
+      if (!isLoginRequest) {
+        // Solo limpiamos y redirigimos si NO estábamos intentando loguearnos
+        localStorage.removeItem("AUTH_TOKEN");
+        window.location.href = "/auth/login";
+      }
     }
 
-    // Retornamos el error para que funciones como getUser() sigan pudiendo atraparlo si es necesario
     return Promise.reject(error);
   },
 );

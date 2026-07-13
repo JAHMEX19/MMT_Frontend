@@ -23,14 +23,16 @@ const navigate = useNavigate();
   const handleLogin = async (formData: LoginFormData) => {
     try {
       const { data } = await api.post(`/api/v1/auth/login`, formData);
+      console.log("Entro al handleLogin - try - intento data");
       localStorage.setItem("AUTH_TOKEN", data.token);
       toast.success(data.message);
       navigate("/admin/dashboard");
+      
 
     } catch (error) {
       if (isAxiosError(error) && error.response) {
         toast.error(
-          error.response.data.message || "Error al registrar el usuario",
+          error.response.data.message || "Error desconocido en el servidor",
         );
       } else {
         toast.error("Error de conexión con el servidor");

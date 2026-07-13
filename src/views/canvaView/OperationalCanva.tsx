@@ -1,4 +1,5 @@
 import { useState, useRef, type MouseEvent, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import { 
   FiBriefcase, FiGrid, FiUsers, FiCpu, FiGitCommit, 
   FiActivity, FiChevronLeft, FiChevronRight,
@@ -12,7 +13,20 @@ interface CanvasNode {
   subtitle: string;
 }
 
+// Interfaz para mapear el contexto que viene desde AppLayout
+interface LayoutContext {
+  user: unknown;
+  activeCompany: {
+    _id: string;
+    companyname: string;
+    canvas?: string;
+  } | undefined;
+}
+
 export default function OperationalCanvas() {
+  // 1. CAPTURA DE CONTEXTO GLOBAL DE LA COMPAÑÍA SELECCIONADA
+  const { activeCompany } = useOutletContext<LayoutContext>();
+
   const [panelOpen, setPanelOpen] = useState(true);
   
   // ESTADOS DE NAVEGACIÓN (Zoom y Paneo)
@@ -23,13 +37,27 @@ export default function OperationalCanvas() {
   const dragStart = useRef({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // Nodos de simulación (Estructura base de base de datos)
-  const [nodes, setNodes] = useState<CanvasNode[]>([
-    { id: "1", type: "company", title: "Magnus MT HQ", subtitle: "Modelo Base de Empresa" },
-    { id: "2", type: "department", title: "Línea de Ensamble A", subtitle: "Departamento Operativo" },
-    { id: "3", type: "process", title: "Inyección de Plástico", subtitle: "Ciclo de Proceso Lean" },
-    { id: "4", type: "reading", title: "Sensor ESP32 Core", subtitle: "Adquisición de Datos OEE" },
-  ]);
+  // Nodos del estado local
+  const [nodes, setNodes] = useState<CanvasNode[]>([]);
+
+  // Efecto para sincronizar los nodos o reiniciar el lienzo cuando cambia la empresa seleccionada
+  useEffect(() => {
+    if (activeCompany) {
+      // Aquí en el futuro harás tu petición fetch/axios usando activeCompany._id
+      // Por ahora, inicializamos con datos demo personalizados con el nombre de la empresa activa
+      setNodes([
+        { id: "1", type: "company", title: `${activeCompany.companyname} HQ`, subtitle: "Nodo raíz de organización" },
+        { id: "2", type: "department", title: "Línea de Ensamble A", subtitle: "Departamento Operativo" },
+        { id: "3", type: "process", title: "Inyección de Plástico", subtitle: "Ciclo de Proceso Lean" },
+        { id: "4", type: "reading", title: "Sensor ESP32 Core", subtitle: "Adquisición de Datos OEE" },
+      ]);
+      // Reseteamos posición para centrar el nuevo lienzo
+      setPosition({ x: 0, y: 0 });
+      setZoom(1.0);
+    } else {
+      setNodes([]);
+    }
+  }, [activeCompany]);
 
   const availableModules = [
     { type: "company", name: "Company Model", desc: "Nodo raíz de organización", icon: <FiBriefcase />, color: "border-cyan-500 text-cyan-400 bg-cyan-950/20" },
@@ -58,14 +86,12 @@ export default function OperationalCanvas() {
       }
     };
 
-    // Escuchador nativo con passive: false para permitir el preventDefault sin restricciones
     canvas.addEventListener("wheel", handleNativeWheel, { passive: false });
     return () => canvas.removeEventListener("wheel", handleNativeWheel);
   }, []);
 
   const handleAddNode = (mod: typeof availableModules[0]) => {
     const newNode: CanvasNode = {
-      // eslint-disable-next-line react-hooks/purity
       id: Date.now().toString(),
       type: mod.type as CanvasNode['type'],
       title: `Nuevo ${mod.name}`,
@@ -97,14 +123,33 @@ export default function OperationalCanvas() {
     });
   };
 
+  // Si no hay ninguna empresa seleccionada todavía en el estado global
+  if (!activeCompany) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] p-6 border border-dashed border-slate-800 rounded-2xl bg-slate-900/10">
+        <div className="text-center max-w-sm flex flex-col items-center gap-3">
+          <div className="p-4 bg-slate-900 border border-slate-800 text-cyan-400 rounded-2xl shadow-xl">
+            <FiBriefcase size={24} />
+          </div>
+          <h3 className="text-base font-bold text-white">Ninguna Organización Seleccionada</h3>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Por favor selecciona una empresa del menú lateral o crea una nueva para poder configurar y desplegar tu arquitectura de procesos e IoT.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 min-h-[calc(100vh-8rem)] select-none">
       
-      {/* 1. ENCABEZADO SUPERIOR */}
+      {/* 1. ENCABEZADO SUPERIOR DINÁMICO */}
       <div className="flex items-center justify-between bg-slate-900/40 border border-slate-800/60 rounded-2xl px-6 py-4 backdrop-blur-md">
         <div>
           <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest font-bold">Lienzo Operativo</span>
-          <h3 className="text-lg font-bold text-white tracking-tight mt-0.5">Mapeo Estructural: Company Core</h3>
+          <h3 className="text-lg font-bold text-white tracking-tight mt-0.5">
+            Mapeo Estructural: {activeCompany.companyname}
+          </h3>
         </div>
         <div className="text-xs text-slate-400 font-mono bg-slate-950/60 border border-slate-800 px-3 py-1.5 rounded-xl">
           Nodos en Cadena: <span className="text-cyan-400 font-bold">{nodes.length}</span>
