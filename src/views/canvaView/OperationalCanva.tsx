@@ -1,4 +1,4 @@
-import { useState, useRef, type MouseEvent, useEffect, type DragEvent } from "react";
+import { useState, useRef, type MouseEvent, useEffect, type DragEvent, type JSX } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
@@ -83,16 +83,17 @@ export default function OperationalCanvas() {
   // 3. Sincronizar el estado local cuando la base de datos responda
   useEffect(() => {
     if (canvasData && canvasData.departments) {
-      const mappedNodes: CanvasNode[] = canvasData.departments.map((dep: any) => ({
-        id: dep._id,
+      const mappedNodes: CanvasNode[] = canvasData.departments.map((dep: unknown) => ({
+        id: (dep as { _id: string })._id,
         type: "department",
-        title: dep.name,
+        title: (dep as { name: string }).name,
         subtitle: "Departamento Operativo",
-        order: dep.order ?? 0
+        order: (dep as { order?: number }).order ?? 0
       }));
 
       // Ordenar secuencialmente por el campo order
       const sorted = mappedNodes.sort((a, b) => a.order - b.order);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNodes(sorted);
     } else {
       setNodes([]);
@@ -102,6 +103,7 @@ export default function OperationalCanvas() {
   // Limpieza y centrado cuando se cambia de empresa en el sidebar
   useEffect(() => {
     if (activeCompany) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPosition({ x: 0, y: 0 });
       setZoom(1.0);
     }
@@ -140,6 +142,7 @@ export default function OperationalCanvas() {
     } else {
       // Para otros tipos de módulos que implementarás a futuro en memoria local
       const newNode: CanvasNode = {
+        // eslint-disable-next-line react-hooks/purity
         id: Date.now().toString(),
         type: mod.type as CanvasNode['type'],
         title: `Nuevo ${mod.name}`,
@@ -150,8 +153,9 @@ export default function OperationalCanvas() {
     }
   };
 
-  const handleDepartmentCreated = (newDepartmentNode: CanvasNode) => {
-    setNodes((prevNodes) => [...prevNodes, newDepartmentNode]);
+  const handleDepartmentCreated = (newDepartmentNode: unknown) => {
+    const typedNode = newDepartmentNode as CanvasNode;
+    setNodes((prevNodes) => [...prevNodes, typedNode]);
     queryClient.invalidateQueries({ queryKey: ["departments", activeCompany?._id] });
   };
 
