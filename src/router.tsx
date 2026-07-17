@@ -10,6 +10,7 @@ import OperationalCanvas from './views/canvaView/OperationalCanva';
 import HomeView from './views/mainViews/HomeView';
 import ProjectsView from './views/mainViews/ProjectsView';
 import ContactView from './views/mainViews/ContactView';
+import ProcessDetailView from './views/appViews/ProcessDetailView';
 
 
 
@@ -27,12 +28,14 @@ export default function Router() {
             <Route path="dashboard" element={<DashboardView />} />
             <Route path="profile" element={<ProfileView />} />
             <Route path="canvas" element={<OperationalCanvas />} />
+            <Route path="processes/:processId" element={<ProcessDetailView />} />
         </Route>
 
         <Route path='/' element={<MainLayout />} >
             <Route path="/" element={<HomeView />} />
             <Route path="/projects" element={<ProjectsView />} />
             <Route path="/contact" element={<ContactView />} />
+            
         </Route>
 
 
