@@ -14,3 +14,10 @@ export async function getUser(): Promise<IUserResponse> {
     throw error;
   }
 }
+
+// Petición corregida para obtener los departamentos reales de una empresa específica
+export const getCanvasDetails = async (companyId: string) => {
+  // ELIMINADOS LOS DOS PUNTOS (:) DE LA RUTA
+  const { data } = await api.get(`/api/v1/department/company/${companyId}`); 
+  return data; // Retorna { departments: [...] }
+};

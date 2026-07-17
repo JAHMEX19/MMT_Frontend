@@ -1,19 +1,25 @@
-import { useState, useRef, type MouseEvent, useEffect } from "react";
+import { useState, useRef, type MouseEvent, useEffect, type DragEvent } from "react";
 import { useOutletContext } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
-  FiBriefcase, FiGrid, FiUsers, FiCpu, FiGitCommit, 
+  FiBriefcase, FiGrid, FiCpu, FiGitCommit, 
   FiActivity, FiChevronLeft, FiChevronRight,
-  FiZoomIn, FiZoomOut, FiMaximize2
+  FiZoomIn, FiZoomOut, FiMaximize2, FiMove
 } from "react-icons/fi";
+import CreateDepartmentModal from "../../components/createDepartmentModal/CreateDepartmentModal"; 
+import { getCanvasDetails } from "../../api/MainApi"; // Importa tu función de API corregida sin los ":"
+import api from "../../config/axios"; // Para tus peticiones mutantes como reordenar
+import { toast } from "sonner";
 
+// Interfaces de tipado
 interface CanvasNode {
   id: string;
   type: 'company' | 'department' | 'employee' | 'module' | 'process' | 'reading';
   title: string;
   subtitle: string;
+  order: number;
 }
 
-// Interfaz para mapear el contexto que viene desde AppLayout
 interface LayoutContext {
   user: unknown;
   activeCompany: {
@@ -23,13 +29,21 @@ interface LayoutContext {
   } | undefined;
 }
 
+interface ModuleItem {
+  type: CanvasNode['type'] | 'form';
+  name: string;
+  desc: string;
+  icon: JSX.Element;
+  color: string;
+}
+
 export default function OperationalCanvas() {
-  // 1. CAPTURA DE CONTEXTO GLOBAL DE LA COMPAÑÍA SELECCIONADA
   const { activeCompany } = useOutletContext<LayoutContext>();
+  const queryClient = useQueryClient();
 
   const [panelOpen, setPanelOpen] = useState(true);
   
-  // ESTADOS DE NAVEGACIÓN (Zoom y Paneo)
+  // ESTADOS DE NAVEGACIÓN (Zoom, Paneo y arrastre)
   const [zoom, setZoom] = useState<number>(1.0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -37,46 +51,76 @@ export default function OperationalCanvas() {
   const dragStart = useRef({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // Nodos del estado local
+  // NODOS REALES DEL ESTADO LOCAL
   const [nodes, setNodes] = useState<CanvasNode[]>([]);
+  const [draggedNodeIndex, setDraggedNodeIndex] = useState<number | null>(null);
+  const [isDepModalOpen, setIsDepModalOpen] = useState(false);
 
-  // Efecto para sincronizar los nodos o reiniciar el lienzo cuando cambia la empresa seleccionada
+  // 1. PETICIÓN REAL: Obtiene los departamentos mapeando la llamada de Axios corregida
+  const { data: canvasData, isLoading: isLoadingCanvas } = useQuery({
+    queryKey: ["departments", activeCompany?._id],
+    queryFn: () => getCanvasDetails(activeCompany!._id),
+    enabled: !!activeCompany?._id, // Solo se dispara si hay compañía seleccionada
+  });
+
+  // 2. MUTACIÓN: Sincroniza de manera persistente el nuevo orden del Drag & Drop horizontal en la BD
+  const updateOrderMutation = useMutation({
+    mutationFn: async (sortedNodes: { id: string; order: number }[]) => {
+      // Ajusta este endpoint según tu enrutador en Express
+      const { data } = await api.put(`/department/order`, { sortedNodes });
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Distribución de planta sincronizada en la BD");
+      // Refrescamos caché
+      queryClient.invalidateQueries({ queryKey: ["departments", activeCompany?._id] });
+    },
+    onError: () => {
+      toast.error("Error al guardar la nueva secuencia de departamentos");
+    }
+  });
+
+  // 3. Sincronizar el estado local cuando la base de datos responda
   useEffect(() => {
-    if (activeCompany) {
-      // Aquí en el futuro harás tu petición fetch/axios usando activeCompany._id
-      // Por ahora, inicializamos con datos demo personalizados con el nombre de la empresa activa
-      setNodes([
-        { id: "1", type: "company", title: `${activeCompany.companyname} HQ`, subtitle: "Nodo raíz de organización" },
-        { id: "2", type: "department", title: "Línea de Ensamble A", subtitle: "Departamento Operativo" },
-        { id: "3", type: "process", title: "Inyección de Plástico", subtitle: "Ciclo de Proceso Lean" },
-        { id: "4", type: "reading", title: "Sensor ESP32 Core", subtitle: "Adquisición de Datos OEE" },
-      ]);
-      // Reseteamos posición para centrar el nuevo lienzo
-      setPosition({ x: 0, y: 0 });
-      setZoom(1.0);
+    if (canvasData && canvasData.departments) {
+      const mappedNodes: CanvasNode[] = canvasData.departments.map((dep: any) => ({
+        id: dep._id,
+        type: "department",
+        title: dep.name,
+        subtitle: "Departamento Operativo",
+        order: dep.order ?? 0
+      }));
+
+      // Ordenar secuencialmente por el campo order
+      const sorted = mappedNodes.sort((a, b) => a.order - b.order);
+      setNodes(sorted);
     } else {
       setNodes([]);
     }
+  }, [canvasData]);
+
+  // Limpieza y centrado cuando se cambia de empresa en el sidebar
+  useEffect(() => {
+    if (activeCompany) {
+      setPosition({ x: 0, y: 0 });
+      setZoom(1.0);
+    }
   }, [activeCompany]);
 
-  const availableModules = [
-    { type: "company", name: "Company Model", desc: "Nodo raíz de organización", icon: <FiBriefcase />, color: "border-cyan-500 text-cyan-400 bg-cyan-950/20" },
+  const availableModules: ModuleItem[] = [
     { type: "department", name: "Department Model", desc: "Áreas o celdas de trabajo", icon: <FiGrid />, color: "border-blue-500 text-blue-400 bg-blue-950/20" },
-    { type: "employee", name: "Employee Model", desc: "Operadores y asignaciones", icon: <FiUsers />, color: "border-purple-500 text-purple-400 bg-purple-950/20" },
     { type: "process", name: "Process Model", desc: "Flujos y operaciones Lean", icon: <FiGitCommit />, color: "border-amber-500 text-amber-400 bg-amber-950/20" },
+    { type: "form", name: "Form Model", desc: "Formularios de datos", icon: <FiActivity />, color: "border-rose-500 text-rose-400 bg-rose-950/20" },
     { type: "module", name: "Module Model", desc: "Hardware IoT asociado", icon: <FiCpu />, color: "border-emerald-500 text-emerald-400 bg-emerald-950/20" },
-    { type: "reading", name: "Reading Model", desc: "Métricas y telemetría de sensores", icon: <FiActivity />, color: "border-rose-500 text-rose-400 bg-rose-950/20" },
   ];
 
-  // INTERCEPTOR NATIVO: Evita que Shift + Rueda mueva la pantalla vertical u horizontalmente
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const handleNativeWheel = (e: globalThis.WheelEvent) => {
       if (e.shiftKey) {
-        e.preventDefault(); // Bloqueo estricto del scroll del navegador
-        
+        e.preventDefault();
         const zoomFactor = 0.05;
         if (e.deltaY < 0) {
           setZoom((prev) => Math.min(prev + zoomFactor, 2.0));
@@ -90,17 +134,27 @@ export default function OperationalCanvas() {
     return () => canvas.removeEventListener("wheel", handleNativeWheel);
   }, []);
 
-  const handleAddNode = (mod: typeof availableModules[0]) => {
-    const newNode: CanvasNode = {
-      id: Date.now().toString(),
-      type: mod.type as CanvasNode['type'],
-      title: `Nuevo ${mod.name}`,
-      subtitle: "Click para configurar parámetros"
-    };
-    setNodes([...nodes, newNode]);
+  const handleAddNodeClick = (mod: ModuleItem) => {
+    if (mod.type === "department") {
+      setIsDepModalOpen(true);
+    } else {
+      // Para otros tipos de módulos que implementarás a futuro en memoria local
+      const newNode: CanvasNode = {
+        id: Date.now().toString(),
+        type: mod.type as CanvasNode['type'],
+        title: `Nuevo ${mod.name}`,
+        subtitle: "Click para configurar parámetros",
+        order: nodes.length
+      };
+      setNodes([...nodes, newNode]);
+    }
   };
 
-  // MANEJADORES DE ZOOM MANUAL (BOTONES)
+  const handleDepartmentCreated = (newDepartmentNode: CanvasNode) => {
+    setNodes((prevNodes) => [...prevNodes, newDepartmentNode]);
+    queryClient.invalidateQueries({ queryKey: ["departments", activeCompany?._id] });
+  };
+
   const handleZoomIn = () => setZoom((prev) => Math.min(prev + 0.1, 2.0));
   const handleZoomOut = () => setZoom((prev) => Math.max(prev - 0.1, 0.4));
   const handleZoomReset = () => {
@@ -108,9 +162,12 @@ export default function OperationalCanvas() {
     setPosition({ x: 0, y: 0 });
   };
 
-  // MANEJADORES DE ARRASTRE (PANNING)
   const handleMouseDown = (e: MouseEvent) => {
-    if ((e.target as HTMLElement).closest('button')) return;
+    if (
+      (e.target as HTMLElement).closest('button') || 
+      (e.target as HTMLElement).closest('.draggable-node')
+    ) return;
+    
     setIsDragging(true);
     dragStart.current = { x: e.clientX - position.x, y: e.clientY - position.y };
   };
@@ -123,7 +180,37 @@ export default function OperationalCanvas() {
     });
   };
 
-  // Si no hay ninguna empresa seleccionada todavía en el estado global
+  // --- DRAG AND DROP NATIVO HORIZONTAL ---
+  const handleDragStart = (index: number) => {
+    setDraggedNodeIndex(index);
+  };
+
+  const handleDragOver = (e: DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedNodeIndex === null || draggedNodeIndex === index) return;
+
+    const updatedNodes = [...nodes];
+    const draggedItem = updatedNodes[draggedNodeIndex];
+    
+    updatedNodes.splice(draggedNodeIndex, 1);
+    updatedNodes.splice(index, 0, draggedItem);
+
+    setDraggedNodeIndex(index);
+    setNodes(updatedNodes);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedNodeIndex(null);
+    
+    // Generamos el payload para actualizar los campos `order` de cada documento en base de datos
+    const sortedPayload = nodes.map((node, index) => ({
+      id: node.id,
+      order: index
+    }));
+
+    updateOrderMutation.mutate(sortedPayload);
+  };
+
   if (!activeCompany) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] p-6 border border-dashed border-slate-800 rounded-2xl bg-slate-900/10">
@@ -148,11 +235,11 @@ export default function OperationalCanvas() {
         <div>
           <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest font-bold">Lienzo Operativo</span>
           <h3 className="text-lg font-bold text-white tracking-tight mt-0.5">
-            Mapeo Estructural: {activeCompany.companyname}
+            Organización: {activeCompany.companyname}
           </h3>
         </div>
         <div className="text-xs text-slate-400 font-mono bg-slate-950/60 border border-slate-800 px-3 py-1.5 rounded-xl">
-          Nodos en Cadena: <span className="text-cyan-400 font-bold">{nodes.length}</span>
+          Nodos: <span className="text-cyan-400 font-bold">{nodes.length}</span>
         </div>
       </div>
 
@@ -172,7 +259,7 @@ export default function OperationalCanvas() {
         >
           <div className={`w-full lg:w-[286px] flex flex-col h-full ${!panelOpen && "invisible"}`}>
             <div className="flex items-center justify-between mb-1">
-              <h2 className="text-base font-bold text-white">Caja de Modelos</h2>
+              <h2 className="text-base font-bold text-white">Modelos</h2>
               <button 
                 onClick={() => setPanelOpen(false)}
                 className="hidden lg:flex p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
@@ -193,7 +280,7 @@ export default function OperationalCanvas() {
               {availableModules.map((mod) => (
                 <button
                   key={mod.type}
-                  onClick={() => handleAddNode(mod)}
+                  onClick={() => handleAddNodeClick(mod)}
                   className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] ${mod.color}`}
                 >
                   <div className="text-xl mt-0.5">{mod.icon}</div>
@@ -219,8 +306,7 @@ export default function OperationalCanvas() {
             ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}
           `}
         >
-          
-          {/* CUADRÍCULA INTEGRAL REACALCULADA */}
+          {/* CUADRÍCULA INTEGRAL */}
           <div 
             className="absolute inset-0 z-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] opacity-70"
             style={{ 
@@ -229,7 +315,6 @@ export default function OperationalCanvas() {
             }} 
           />
 
-          {/* PESTAÑA PARA REABRIR PANEL */}
           {!panelOpen && (
             <button
               onClick={() => setPanelOpen(true)}
@@ -252,7 +337,6 @@ export default function OperationalCanvas() {
             <span 
               onClick={handleZoomReset}
               className="text-[10px] font-mono font-bold text-slate-400 hover:text-cyan-400 px-2 cursor-pointer"
-              title="Shift + Rueda para Zoom rápido"
             >
               {Math.round(zoom * 100)}%
             </span>
@@ -276,57 +360,87 @@ export default function OperationalCanvas() {
 
           {/* ESPACIO DINÁMICO DE TRABAJO */}
           <div className="flex-1 relative z-10 w-full h-full">
-            <div 
-              className="absolute origin-center w-full flex flex-col gap-6 items-center py-12"
-              style={{ 
-                transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
-                transition: isDragging ? 'none' : 'transform 0.1s ease-out' 
-              }}
-            >
-              {nodes.map((node, index) => {
-                const currentMod = availableModules.find(m => m.type === node.type);
-                
-                return (
-                  <div key={node.id} className="flex flex-col items-center w-full max-w-md mx-auto">
-                    
-                    {/* Tarjeta del Nodo */}
-                    <div className="w-full flex items-center justify-between p-4 rounded-xl border bg-slate-950/95 shadow-xl border-slate-800/80 hover:border-slate-700 transition-colors">
-                      <div className="flex items-center gap-3.5">
-                        <div className={`p-2.5 rounded-lg border ${currentMod?.color}`}>
-                          {currentMod?.icon}
+            {isLoadingCanvas ? (
+              <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-xs font-mono">
+                Cargando cadena de valor desde la base de datos...
+              </div>
+            ) : (
+              <div 
+                className="absolute origin-center h-full flex flex-row items-center gap-4 px-12"
+                style={{ 
+                  transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+                  transition: isDragging ? 'none' : 'transform 0.1s ease-out' 
+                }}
+              >
+                {nodes.map((node, index) => {
+                  const currentMod = availableModules.find(m => m.type === node.type);
+                  const isBeingDragged = index === draggedNodeIndex;
+                  
+                  return (
+                    <div 
+                      key={node.id} 
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragEnd={handleDragEnd}
+                      className={`
+                        draggable-node flex items-center transition-all duration-200 select-none
+                        ${isBeingDragged ? "opacity-30 scale-95 cursor-grabbing" : "opacity-100 cursor-grab"}
+                      `}
+                    >
+                      {/* Tarjeta del Nodo */}
+                      <div className="w-80 flex items-center justify-between p-4 rounded-xl border bg-slate-950/95 shadow-xl border-slate-800/80 hover:border-slate-700 transition-colors group relative">
+                        <div className="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-40 text-slate-400 transition-opacity pointer-events-none">
+                          <FiMove size={12} />
                         </div>
-                        <div>
-                          <h4 className="text-sm font-bold text-white">{node.title}</h4>
-                          <p className="text-xs text-slate-400 mt-0.5">{node.subtitle}</p>
+
+                        <div className="flex items-center gap-3.5 pl-2">
+                          <div className={`p-2.5 rounded-lg border ${currentMod?.color}`}>
+                            {currentMod?.icon}
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-bold text-white tracking-tight truncate w-36">{node.title}</h4>
+                            <p className="text-[11px] text-slate-400 mt-0.5 truncate w-36">{node.subtitle}</p>
+                          </div>
                         </div>
+                        
+                        <button className="text-[11px] text-slate-400 hover:text-white px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 rounded-lg border border-slate-800 transition-colors shrink-0">
+                          Configurar
+                        </button>
                       </div>
-                      
-                      <button className="text-xs text-slate-500 hover:text-white px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 rounded-lg border border-slate-800 transition-colors">
-                        Configurar
-                      </button>
+
+                      {/* Conector Lean Horizontal */}
+                      {index < nodes.length - 1 && (
+                        <div className="w-8 h-0.5 bg-gradient-to-r from-cyan-500/50 to-slate-800 mx-1 relative shrink-0">
+                          <div className="absolute -right-1 -top-[3px] w-2 h-2 rounded-full bg-cyan-400" />
+                        </div>
+                      )}
                     </div>
+                  );
+                })}
 
-                    {/* Conector Lean */}
-                    {index < nodes.length - 1 && (
-                      <div className="h-6 w-0.5 bg-gradient-to-b from-cyan-500/50 to-slate-800 my-1 relative">
-                        <div className="absolute -bottom-1 -left-[3px] w-2 h-2 rounded-full bg-cyan-400" />
-                      </div>
-                    )}
-
+                {nodes.length === 0 && (
+                  <div className="text-center w-full text-slate-500 text-xs font-mono px-12">
+                    No se encontraron departamentos. Instancia un "Department Model" para empezar.
                   </div>
-                );
-              })}
-
-              {nodes.length === 0 && (
-                <div className="text-center py-12 text-slate-500 text-sm font-medium">
-                  El lienzo está vacío. Instancia módulos para trazar tu cadena de valor.
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
         </div>
       </div>
+
+      {/* RENDERIZADO DEL MODAL */}
+      {activeCompany && activeCompany.canvas && (
+        <CreateDepartmentModal
+          isOpen={isDepModalOpen}
+          onClose={() => setIsDepModalOpen(false)}
+          canvasId={activeCompany.canvas}
+          companyId={activeCompany._id}
+          onDepartmentCreated={handleDepartmentCreated}
+        />
+      )}
     </div>
   );
 }
