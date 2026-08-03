@@ -12,11 +12,9 @@ interface CreateProcessModalProps {
   onProcessCreated: (newProcess: unknown) => void; 
 }
 
-// Actualizamos la interfaz del formulario con la propiedad sourceType
 interface ProcessFormData {
   name: string;
   description: string;
-  sourceType: "Manual" | "IoT"; // <-- Nueva decisión operativa
 }
 
 export default function CreateProcessModal({
@@ -35,7 +33,6 @@ export default function CreateProcessModal({
     defaultValues: {
       name: "",
       description: "",
-      sourceType: "Manual", // <-- Por defecto inicia en Manual
     },
   });
 
@@ -43,13 +40,14 @@ export default function CreateProcessModal({
 
   const onSubmit = async (data: ProcessFormData) => {
     try {
-      // Petición POST enviando todos los datos combinados al backend
+      // Petición POST enviando únicamente nombre, descripción, departamento
+      // y asignando un sourceType por defecto para mantener consistencia en la BD
       const response = await api.post(`/api/v1/process/`, {
         name: data.name,
         description: data.description,
         departmentId, 
-        sourceType: data.sourceType, // <-- Pasamos el origen seleccionado
-        metricsConfig: [] // Opcional: Inicia vacío para configurarse dentro del detalle del proceso
+        sourceType: "Manual", // Default inicial (se puede cambiar dentro de la vista de detalle)
+        metricsConfig: []
       });
 
       toast.success(response.data.message || "Subproceso añadido a la celda");
@@ -88,7 +86,7 @@ export default function CreateProcessModal({
               reset();
               onClose();
             }}
-            className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+            className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
             <FiX size={18} />
           </button>
@@ -125,26 +123,11 @@ export default function CreateProcessModal({
             </label>
             <textarea
               id="description"
-              rows={2}
+              rows={3}
               placeholder="Detalla las etapas o tolerancias esperadas..."
               className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500/50 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 outline-none transition-all resize-none"
               {...register("description")}
             />
-          </div>
-
-          {/* NUEVO CAMPO: Selector de Origen de Ingesta */}
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="sourceType" className="text-xs font-semibold text-slate-300">
-              Captura de Datos (Origen)
-            </label>
-            <select
-              id="sourceType"
-              className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500/50 rounded-xl px-4 py-3 text-xs text-slate-300 outline-none transition-all cursor-pointer"
-              {...register("sourceType")}
-            >
-              <option value="Manual">Captura Manual (Formulario en Planta)</option>
-              <option value="IoT">Telemetría Automatizada (Dispositivos IoT)</option>
-            </select>
           </div>
 
           <p className="text-[10px] text-slate-500 bg-slate-950/30 border border-slate-800/40 p-3 rounded-xl italic leading-relaxed">
@@ -159,14 +142,14 @@ export default function CreateProcessModal({
                 reset();
                 onClose();
               }}
-              className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white bg-transparent border border-slate-800 hover:bg-slate-800 rounded-xl transition-all"
+              className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white bg-transparent border border-slate-800 hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
             >
               Cancelar
             </button>
             <button
               disabled={isSubmitting}
               type="submit"
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl shadow-lg shadow-amber-500/10 active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl shadow-lg shadow-amber-500/10 active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
             >
               <FiCheck size={14} />
               {isSubmitting ? "Guardando..." : "Desplegar"}
