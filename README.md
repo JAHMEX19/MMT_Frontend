@@ -10,6 +10,11 @@
 
 **Magnus MT** es una solución tecnológica integral diseñada para optimizar procesos industriales y operacionales mediante metodologías Lean y la recolección automática de datos. Combina una aplicación web interactiva para el mapeo de lienzos de proceso (*canvases*) con módulos de hardware/telemetría IoT para la captura de métricas operacionales directamente desde la planta de trabajo.
 
+| Vista de cliente | Vista de administrador |
+| :---: | :---: |
+|  <img width="1387" height="827" alt="Magnus_1" src="https://github.com/user-attachments/assets/bd3738b1-949c-4bf9-8b69-d6c71881b6b6" width="400"/> |
+  <img width="1387" height="827" alt="Magnus_2" src="https://github.com/user-attachments/assets/587cd65d-16c4-4e13-bd35-b2e1e5e1a2da" width="400"/>
+
 ---
 
 ## 🏗️ Arquitectura del Sistema & Tech Stack
