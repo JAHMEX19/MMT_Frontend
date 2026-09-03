@@ -1,73 +1,29 @@
-# React + TypeScript + Vite
+# Magnus MT – Enterprise Operations & Process Canvas Platform (Work in Progress) 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Plataforma SaaS e IoT enfocada en la digitalización de flujos operacionales, trazabilidad de procesos e integración de datos industriales en tiempo real.
 
-Currently, two official plugins are available:
+🌐 **Sitio Oficial / Plataforma en Vivo:** [https://magnusmt.com](https://magnusmt.com/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 📌 Sobre el Proyecto
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Magnus MT** es una solución tecnológica integral diseñada para optimizar procesos industriales y operacionales mediante metodologías Lean y la recolección automática de datos. Combina una aplicación web interactiva para el mapeo de lienzos de proceso (*canvases*) con módulos de hardware/telemetría IoT para la captura de métricas operacionales directamente desde la planta de trabajo.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🏗️ Arquitectura del Sistema & Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 💻 Web Platform & SaaS Backend
+* **Frontend:** React.js, Next.js, JavaScript (ES6+) / TypeScript, Tailwind CSS
+* **Backend:** Node.js, Express.js (Arquitectura RESTful API & WebSockets / MQTT)
+* **Bases de Datos:** MongoDB / PostgreSQL (Manejando persistencia de datos, usuarios y métricas de procesos)
+* **Despliegue & Dominio:** Dominio personalizado e infraestructura en producción (`magnusmt.com`)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 🛰️ Hardware & IoT Layer (MMT Core v1)
+* **Microcontrolador:** ESP32 (Firmware en C/C++ / ESP-IDF)
+* **Protocolos de Comunicación:** MQTT / HTTP REST APIs para envío de telemetría en tiempo real
+* **Electrónica:** Diseño de circuitos para adquisición de señales y aislamiento lógico
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
