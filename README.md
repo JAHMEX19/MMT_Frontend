@@ -12,9 +12,7 @@
 
 | Vista de cliente | Vista de administrador |
 | :---: | :---: |
-|  <img width="1387" height="827" alt="Magnus_1" src="https://github.com/user-attachments/assets/bd3738b1-949c-4bf9-8b69-d6c71881b6b6" width="400"/> |
-  <img width="1387" height="827" alt="Magnus_2" src="https://github.com/user-attachments/assets/587cd65d-16c4-4e13-bd35-b2e1e5e1a2da" width="400"/>
-
+|  <img width="1387" height="827" alt="Magnus_1" src="https://github.com/user-attachments/assets/bd3738b1-949c-4bf9-8b69-d6c71881b6b6" width="400"/> | <img width="1387" height="827" alt="Magnus_2" src="https://github.com/user-attachments/assets/587cd65d-16c4-4e13-bd35-b2e1e5e1a2da" width="400"/>
 ---
 
 ## 🏗️ Arquitectura del Sistema & Tech Stack
